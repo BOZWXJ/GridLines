@@ -1,6 +1,7 @@
 package gjum.minecraft.forge.gridlines;
 
 import gjum.minecraft.forge.gridlines.config.GridLinesConfig;
+import gjum.minecraft.forge.gridlines.config.GridPattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -41,7 +42,11 @@ public class Renderer {
             if (!conf.depthTest) glDisable(GL_DEPTH_TEST);
 
             // TODO other grid types
-            renderSquareGrid(x, y, z);
+            if (conf.gridPattern == GridPattern.SQUARE) {
+                renderSquareGrid(x, y, z);
+            } else {
+                renderDiamondGrid(x, y, z);
+            }
 
             if (!conf.depthTest) glEnable(GL_DEPTH_TEST);
             glEnable(GL_TEXTURE_2D);
@@ -70,9 +75,32 @@ public class Renderer {
 
         for (int gx = west; gx <= east; gx += conf.interval) {
             for (int gz = north; gz <= south; gz += conf.interval) {
-                drawVerticalLine(gx + .5f, gz + .5f, .3f, 0, 256,
+                drawVerticalLine(gx + .5f, gz + .5f, .1f, 0, 256,
                         color.getRed(), color.getGreen(), color.getBlue(), 100);
             }
+        }
+    }
+
+    private void renderDiamondGrid(double px, double py, double pz){
+        GridLinesConfig conf = GridLinesConfig.instance;
+        int pxi = (int) Math.floor(px);
+        int pzi = (int) Math.floor(pz);
+        int west = nearestSquareGridAnchor(pxi - conf.renderDistance, conf.xAnchor, conf.interval);
+        int north = nearestSquareGridAnchor(pzi - conf.renderDistance, conf.zAnchor, conf.interval);
+
+        int east = west + 2 * conf.renderDistance;
+        int south = north + 2 * conf.renderDistance;
+
+        Color color = new Color(255, 255, 255); // TODO config
+
+        boolean xf = Math.abs(west - conf.xAnchor) % (conf.interval * 2) == 0;
+        boolean zf = Math.abs(north - conf.zAnchor) % (conf.interval * 2) == 0;
+        for (int gx = west; gx <= east; gx += conf.interval) {
+            for (int gz = ( xf == zf ? north : north + conf.interval); gz <= south; gz += conf.interval * 2) {
+                    drawVerticalLine(gx + .5f, gz + .5f, .1f, 0, 256,
+                            color.getRed(), color.getGreen(), color.getBlue(), 100);
+            }
+            xf = !xf;
         }
     }
 

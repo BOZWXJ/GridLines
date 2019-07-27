@@ -1,7 +1,7 @@
 package gjum.minecraft.forge.gridlines.config;
 
 public enum GridPattern {
-    SQUARE("Square"), HEX_STANDING("Hexagon, standing"), HEX_SITTING("Hexagon, sitting"),;
+    SQUARE("Square"), DIAMOND("Diamond"), HEX_STANDING("Hexagon, standing"), HEX_SITTING("Hexagon, sitting"),;
 
     public static String[] names = null;
 
