@@ -41,11 +41,36 @@ public class Renderer {
             glEnable(GL_BLEND);
             if (!conf.depthTest) glDisable(GL_DEPTH_TEST);
 
-            // TODO other grid types
-            if (conf.gridPattern == GridPattern.SQUARE) {
-                renderSquareGrid(x, y, z);
-            } else {
-                renderDiamondGrid(x, y, z);
+            if (conf.grid1Enabled) {
+                Color color;
+                try {
+                    color = Color.decode(conf.grid1Color);
+                } catch (NumberFormatException e) {
+                    color = Color.WHITE;
+                }
+                if (conf.grid1GridPattern == GridPattern.SQUARE) {
+                    renderSquareGrid(x, y, z, conf.grid1Interval, conf.grid1XAnchor, conf.grid1ZAnchor, conf.renderDistance, color);
+                } else if (conf.grid1GridPattern == GridPattern.DIAMOND){
+                    renderDiamondGrid(x, y, z, conf.grid1Interval, conf.grid1XAnchor, conf.grid1ZAnchor, conf.renderDistance, color);
+                } else {
+                    // TODO other grid types
+                }
+            }
+
+            if (conf.grid2Enabled) {
+                Color color;
+                try {
+                    color = Color.decode(conf.grid2Color);
+                } catch (NumberFormatException e) {
+                    color = Color.WHITE;
+                }
+                if (conf.grid2GridPattern == GridPattern.SQUARE) {
+                    renderSquareGrid(x, y, z, conf.grid2Interval, conf.grid2XAnchor, conf.grid2ZAnchor, conf.renderDistance, color);
+                } else if (conf.grid2GridPattern == GridPattern.DIAMOND){
+                    renderDiamondGrid(x, y, z, conf.grid2Interval, conf.grid2XAnchor, conf.grid2ZAnchor, conf.renderDistance, color);
+                } else {
+                    // TODO other grid types
+                }
             }
 
             if (!conf.depthTest) glEnable(GL_DEPTH_TEST);
@@ -61,42 +86,36 @@ public class Renderer {
         }
     }
 
-    private void renderSquareGrid(double px, double py, double pz) {
-        GridLinesConfig conf = GridLinesConfig.instance;
+    private void renderSquareGrid(double px, double py, double pz, int interval, int xAnchor, int zAnchor, int renderDistance, Color color) {
         int pxi = (int) Math.floor(px);
         int pzi = (int) Math.floor(pz);
-        int west = nearestSquareGridAnchor(pxi - conf.renderDistance, conf.xAnchor, conf.interval);
-        int north = nearestSquareGridAnchor(pzi - conf.renderDistance, conf.zAnchor, conf.interval);
+        int west = nearestSquareGridAnchor(pxi - renderDistance, xAnchor, interval);
+        int north = nearestSquareGridAnchor(pzi - renderDistance, zAnchor, interval);
 
-        int east = west + 2 * conf.renderDistance;
-        int south = north + 2 * conf.renderDistance;
+        int east = west + 2 * renderDistance;
+        int south = north + 2 * renderDistance;
 
-        Color color = new Color(255, 255, 255); // TODO config
-
-        for (int gx = west; gx <= east; gx += conf.interval) {
-            for (int gz = north; gz <= south; gz += conf.interval) {
+        for (int gx = west; gx <= east; gx += interval) {
+            for (int gz = north; gz <= south; gz += interval) {
                 drawVerticalLine(gx + .5f, gz + .5f, .1f, 0, 256,
                         color.getRed(), color.getGreen(), color.getBlue(), 100);
             }
         }
     }
 
-    private void renderDiamondGrid(double px, double py, double pz){
-        GridLinesConfig conf = GridLinesConfig.instance;
+    private void renderDiamondGrid(double px, double py, double pz, int interval, int xAnchor, int zAnchor, int renderDistance, Color color){
         int pxi = (int) Math.floor(px);
         int pzi = (int) Math.floor(pz);
-        int west = nearestSquareGridAnchor(pxi - conf.renderDistance, conf.xAnchor, conf.interval);
-        int north = nearestSquareGridAnchor(pzi - conf.renderDistance, conf.zAnchor, conf.interval);
+        int west = nearestSquareGridAnchor(pxi - renderDistance, xAnchor, interval);
+        int north = nearestSquareGridAnchor(pzi - renderDistance, zAnchor, interval);
 
-        int east = west + 2 * conf.renderDistance;
-        int south = north + 2 * conf.renderDistance;
+        int east = west + 2 * renderDistance;
+        int south = north + 2 * renderDistance;
 
-        Color color = new Color(255, 255, 255); // TODO config
-
-        boolean xf = Math.abs(west - conf.xAnchor) % (conf.interval * 2) == 0;
-        boolean zf = Math.abs(north - conf.zAnchor) % (conf.interval * 2) == 0;
-        for (int gx = west; gx <= east; gx += conf.interval) {
-            for (int gz = ( xf == zf ? north : north + conf.interval); gz <= south; gz += conf.interval * 2) {
+        boolean xf = Math.abs(west - xAnchor) % (interval * 2) == 0;
+        boolean zf = Math.abs(north - zAnchor) % (interval * 2) == 0;
+        for (int gx = west; gx <= east; gx += interval) {
+            for (int gz = ( xf == zf ? north : north + interval); gz <= south; gz += interval * 2) {
                     drawVerticalLine(gx + .5f, gz + .5f, .1f, 0, 256,
                             color.getRed(), color.getGreen(), color.getBlue(), 100);
             }
